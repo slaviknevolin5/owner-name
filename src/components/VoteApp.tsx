@@ -6,6 +6,7 @@ import type { Candidate } from "@/lib/candidates";
 import type { EventInfo } from "@/lib/event";
 import { CandidatePhoto } from "@/components/CandidatePhoto";
 import { CandidateMeta } from "@/components/CandidateMeta";
+import { CandidateSlider } from "@/components/CandidateSlider";
 
 type StatusResponse = {
   hasVoted: boolean;
@@ -113,7 +114,7 @@ export function VoteApp({
         <p className="lede">
           {phase === "done"
             ? "Результаты обновляются сразу после голосования."
-            : "Один голос с устройства. Посмотрите фото и нажмите «Голосовать»."}
+            : "Листайте кандидатов и нажмите «Голосовать». Один голос с устройства."}
         </p>
       </header>
 
@@ -131,33 +132,12 @@ export function VoteApp({
       )}
 
       {(phase === "ready" || phase === "voting") && (
-        <ul className="candidate-list" aria-label="Кандидаты">
-          {candidates.map((c, index) => (
-            <li
-              key={c.id}
-              className="candidate-item"
-              style={{ animationDelay: `${0.08 + index * 0.07}s` }}
-            >
-              <button
-                type="button"
-                className={`candidate-btn${selectedId === c.id ? " is-selected" : ""}`}
-                disabled={phase === "voting"}
-                onClick={() => submitVote(c.id)}
-              >
-                <CandidatePhoto candidate={c} index={index} size="lg" />
-                <span className="candidate-copy">
-                  <span className="candidate-name">{c.name}</span>
-                  <CandidateMeta candidate={c} />
-                </span>
-                <span className="candidate-action">
-                  {phase === "voting" && selectedId === c.id
-                    ? "Отправка…"
-                    : "Голосовать"}
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
+        <CandidateSlider
+          candidates={candidates}
+          disabled={phase === "voting"}
+          votingId={selectedId}
+          onVote={submitVote}
+        />
       )}
 
       {showResults && (
