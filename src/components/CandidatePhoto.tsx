@@ -3,9 +3,15 @@ import type { Candidate } from "@/lib/candidates";
 type Props = {
   candidate: Candidate;
   index?: number;
-  size?: "md" | "sm";
+  size?: "lg" | "md" | "sm";
   className?: string;
 };
+
+const SIZE_PX = {
+  lg: 640,
+  md: 56,
+  sm: 40,
+} as const;
 
 export function CandidatePhoto({
   candidate,
@@ -20,15 +26,17 @@ export function CandidatePhoto({
     .map((part) => part[0]?.toUpperCase() ?? "")
     .join("");
 
+  const px = SIZE_PX[size];
+
   return (
     <span className={`candidate-photo candidate-photo--${size} ${className}`.trim()}>
       {candidate.photo ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={candidate.photo}
-          alt=""
-          width={size === "md" ? 56 : 36}
-          height={size === "md" ? 56 : 36}
+          alt={candidate.name}
+          width={px}
+          height={px}
           className="candidate-photo__img"
         />
       ) : (

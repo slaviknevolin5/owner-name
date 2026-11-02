@@ -112,7 +112,7 @@ export function VoteApp({
         <p className="lede">
           {phase === "done"
             ? "Результаты обновляются сразу после голосования."
-            : "Один голос с устройства. Нажмите на имя — голос отправится сразу."}
+            : "Один голос с устройства. Посмотрите фото и нажмите «Голосовать»."}
         </p>
       </header>
 
@@ -143,7 +143,7 @@ export function VoteApp({
                 disabled={phase === "voting"}
                 onClick={() => submitVote(c.id)}
               >
-                <CandidatePhoto candidate={c} index={index} size="md" />
+                <CandidatePhoto candidate={c} index={index} size="lg" />
                 <span className="candidate-name">{c.name}</span>
                 <span className="candidate-action">
                   {phase === "voting" && selectedId === c.id
