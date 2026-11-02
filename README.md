@@ -101,15 +101,12 @@ npx --yes qrcode "https://your-app.vercel.app" -o olympiad-qr.png
 
 Без Upstash приложение работает на файловом store — подходит для `npm run dev` / `npm start` на одном инстансе. На Vercel без Redis голоса **не** будут стабильно сохраняться между инстансами — подключите Upstash.
 
-## Деплой на Vercel (постоянный URL для QR)
+## Деплой на Cloudflare (постоянный URL для QR)
 
 Пошагово: [`docs/DEPLOY.md`](docs/DEPLOY.md).
 
-Кратко: импорт репо в Vercel → free Upstash Redis → env
-`UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `NEXT_PUBLIC_SITE_URL`
-→ Redeploy → `/qr`.
-
-На Vercel без Redis голоса **не** держатся между инстансами.
+Кратко: OpenNext → Cloudflare Workers + KV (`OLYMPIAD_VOTES`) → claim preview
+или `wrangler deploy` с `CLOUDFLARE_API_TOKEN` → задать `NEXT_PUBLIC_SITE_URL` → `/qr`.
 
 ## Деплой на Cloudflare Pages
 
