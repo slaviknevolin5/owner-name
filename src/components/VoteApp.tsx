@@ -5,6 +5,7 @@ import { getOrCreateDeviceId } from "@/lib/device-id";
 import type { Candidate } from "@/lib/candidates";
 import type { EventInfo } from "@/lib/event";
 import { CandidatePhoto } from "@/components/CandidatePhoto";
+import { CandidateMeta } from "@/components/CandidateMeta";
 
 type StatusResponse = {
   hasVoted: boolean;
@@ -144,7 +145,10 @@ export function VoteApp({
                 onClick={() => submitVote(c.id)}
               >
                 <CandidatePhoto candidate={c} index={index} size="lg" />
-                <span className="candidate-name">{c.name}</span>
+                <span className="candidate-copy">
+                  <span className="candidate-name">{c.name}</span>
+                  <CandidateMeta candidate={c} />
+                </span>
                 <span className="candidate-action">
                   {phase === "voting" && selectedId === c.id
                     ? "Отправка…"
@@ -162,8 +166,11 @@ export function VoteApp({
           {votedCandidate && (
             <p className="voted-for">
               <CandidatePhoto candidate={votedCandidate} size="sm" />
-              <span>
-                Ваш выбор: <strong>{votedCandidate.name}</strong>
+              <span className="voted-for-copy">
+                <span>
+                  Ваш выбор: <strong>{votedCandidate.name}</strong>
+                </span>
+                <CandidateMeta candidate={votedCandidate} />
               </span>
             </p>
           )}
@@ -181,7 +188,10 @@ export function VoteApp({
                   <div className="result-meta">
                     <span className="result-identity">
                       <CandidatePhoto candidate={c} size="sm" />
-                      <span className="result-name">{c.name}</span>
+                      <span className="result-copy">
+                        <span className="result-name">{c.name}</span>
+                        <CandidateMeta candidate={c} />
+                      </span>
                     </span>
                     <span className="result-count">
                       {votes} · {pct}%
