@@ -3,6 +3,8 @@ import { getCandidates } from "@/lib/candidates";
 import { getEventInfo } from "@/lib/event";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default function HomePage() {
   const candidates = getCandidates();
   const event = getEventInfo();
