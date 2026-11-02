@@ -7,6 +7,7 @@ import type { EventInfo } from "@/lib/event";
 import { CandidatePhoto } from "@/components/CandidatePhoto";
 import { CandidateMeta } from "@/components/CandidateMeta";
 import { CandidateSlider } from "@/components/CandidateSlider";
+import { SoccerBall } from "@/components/SoccerBall";
 
 type StatusResponse = {
   hasVoted: boolean;
@@ -104,9 +105,13 @@ export function VoteApp({
   return (
     <div className="vote-shell">
       <header className="vote-hero">
-        <p className="brand" aria-label="Название">
-          {event.title}
-        </p>
+        <div className="brand-row">
+          <SoccerBall />
+          <p className="brand" aria-label="Название">
+            {event.title}
+          </p>
+          <SoccerBall />
+        </div>
         <p className="org-name">{event.organization}</p>
         <h1 className="headline">
           {phase === "done" ? "Голос принят" : "Выберите кандидата"}
@@ -118,88 +123,90 @@ export function VoteApp({
         </p>
       </header>
 
-      {phase === "loading" && (
-        <div className="state-block" role="status">
-          <span className="pulse-dot" />
-          Загрузка…
-        </div>
-      )}
+      <div className="pitch-pad">
+        {phase === "loading" && (
+          <div className="state-block" role="status">
+            <span className="pulse-dot" />
+            Загрузка…
+          </div>
+        )}
 
-      {phase === "error" && (
-        <div className="state-block error" role="alert">
-          {message}
-        </div>
-      )}
+        {phase === "error" && (
+          <div className="state-block error" role="alert">
+            {message}
+          </div>
+        )}
 
-      {(phase === "ready" || phase === "voting") && (
-        <CandidateSlider
-          candidates={candidates}
-          disabled={phase === "voting"}
-          votingId={selectedId}
-          onVote={submitVote}
-        />
-      )}
+        {(phase === "ready" || phase === "voting") && (
+          <CandidateSlider
+            candidates={candidates}
+            disabled={phase === "voting"}
+            votingId={selectedId}
+            onVote={submitVote}
+          />
+        )}
 
-      {showResults && (
-        <section className="results" aria-live="polite">
-          {message && <p className="confirm-msg">{message}</p>}
-          {votedCandidate && (
-            <p className="voted-for">
-              <CandidatePhoto candidate={votedCandidate} size="sm" />
-              <span className="voted-for-copy">
-                <span>
-                  Ваш выбор: <strong>{votedCandidate.name}</strong>
+        {showResults && (
+          <section className="results" aria-live="polite">
+            {message && <p className="confirm-msg">{message}</p>}
+            {votedCandidate && (
+              <p className="voted-for">
+                <CandidatePhoto candidate={votedCandidate} size="sm" />
+                <span className="voted-for-copy">
+                  <span>
+                    Ваш выбор: <strong>{votedCandidate.name}</strong>
+                  </span>
+                  <CandidateMeta candidate={votedCandidate} />
                 </span>
-                <CandidateMeta candidate={votedCandidate} />
-              </span>
-            </p>
-          )}
-          <h2 className="results-title">Текущие результаты</h2>
-          <ul className="results-list">
-            {candidates.map((c) => {
-              const votes = counts[c.id] ?? 0;
-              const pct = total > 0 ? Math.round((votes / total) * 100) : 0;
-              const isMine = c.id === votedFor;
-              return (
-                <li
-                  key={c.id}
-                  className={`result-row${isMine ? " is-mine" : ""}`}
-                >
-                  <div className="result-meta">
-                    <span className="result-identity">
-                      <CandidatePhoto candidate={c} size="sm" />
-                      <span className="result-copy">
-                        <span className="result-name">{c.name}</span>
-                        <CandidateMeta candidate={c} />
-                      </span>
-                    </span>
-                    <span className="result-count">
-                      {votes} · {pct}%
-                    </span>
-                  </div>
-                  <div
-                    className="result-bar"
-                    role="presentation"
-                    aria-hidden="true"
+              </p>
+            )}
+            <h2 className="results-title">Текущие результаты</h2>
+            <ul className="results-list">
+              {candidates.map((c) => {
+                const votes = counts[c.id] ?? 0;
+                const pct = total > 0 ? Math.round((votes / total) * 100) : 0;
+                const isMine = c.id === votedFor;
+                return (
+                  <li
+                    key={c.id}
+                    className={`result-row${isMine ? " is-mine" : ""}`}
                   >
+                    <div className="result-meta">
+                      <span className="result-identity">
+                        <CandidatePhoto candidate={c} size="sm" />
+                        <span className="result-copy">
+                          <span className="result-name">{c.name}</span>
+                          <CandidateMeta candidate={c} />
+                        </span>
+                      </span>
+                      <span className="result-count">
+                        {votes} · {pct}%
+                      </span>
+                    </div>
                     <div
-                      className="result-fill"
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-          <p className="total-votes">Всего голосов: {total}</p>
-        </section>
-      )}
+                      className="result-bar"
+                      role="presentation"
+                      aria-hidden="true"
+                    >
+                      <div
+                        className="result-fill"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+            <p className="total-votes">Всего голосов: {total}</p>
+          </section>
+        )}
 
-      {message && phase === "ready" && (
-        <p className="inline-error" role="alert">
-          {message}
-        </p>
-      )}
+        {message && phase === "ready" && (
+          <p className="inline-error" role="alert">
+            {message}
+          </p>
+        )}
+      </div>
     </div>
   );
 }

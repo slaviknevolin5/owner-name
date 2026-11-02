@@ -1,17 +1,26 @@
 import type { Metadata, Viewport } from "next";
-import { Manrope, Unbounded } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const unbounded = Unbounded({
+const unbounded = localFont({
+  src: [
+    { path: "../fonts/Unbounded-500.ttf", weight: "500", style: "normal" },
+    { path: "../fonts/Unbounded-600.ttf", weight: "600", style: "normal" },
+    { path: "../fonts/Unbounded-700.ttf", weight: "700", style: "normal" },
+  ],
   variable: "--font-unbounded",
-  subsets: ["latin", "cyrillic"],
-  weight: ["500", "600", "700"],
+  display: "swap",
 });
 
-const manrope = Manrope({
+const manrope = localFont({
+  src: [
+    { path: "../fonts/Manrope-400.ttf", weight: "400", style: "normal" },
+    { path: "../fonts/Manrope-500.ttf", weight: "500", style: "normal" },
+    { path: "../fonts/Manrope-600.ttf", weight: "600", style: "normal" },
+    { path: "../fonts/Manrope-700.ttf", weight: "700", style: "normal" },
+  ],
   variable: "--font-manrope",
-  subsets: ["latin", "cyrillic"],
-  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -23,7 +32,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#eef4f8",
+  themeColor: "#121212",
 };
 
 export default function RootLayout({
