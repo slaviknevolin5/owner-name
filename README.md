@@ -22,6 +22,17 @@ npm run dev
 npm run build && npm start
 ```
 
+## Название мероприятия / школы
+
+Текст шапки в [`data/event.json`](data/event.json):
+
+```json
+{
+  "title": "Голосование Олимпиады",
+  "organization": "КГУ «Школа-гимназия № 118» г.Алматы"
+}
+```
+
 ## Кандидаты
 
 Список в [`data/candidates.json`](data/candidates.json):

@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { getOrCreateDeviceId } from "@/lib/device-id";
 import type { Candidate } from "@/lib/candidates";
+import type { EventInfo } from "@/lib/event";
 import { CandidatePhoto } from "@/components/CandidatePhoto";
 
 type StatusResponse = {
@@ -13,7 +14,13 @@ type StatusResponse = {
 
 type Phase = "loading" | "ready" | "voting" | "done" | "error";
 
-export function VoteApp({ candidates }: { candidates: Candidate[] }) {
+export function VoteApp({
+  candidates,
+  event,
+}: {
+  candidates: Candidate[];
+  event: EventInfo;
+}) {
   const [phase, setPhase] = useState<Phase>("loading");
   const [deviceId, setDeviceId] = useState<string>("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -96,8 +103,9 @@ export function VoteApp({ candidates }: { candidates: Candidate[] }) {
     <div className="vote-shell">
       <header className="vote-hero">
         <p className="brand" aria-label="Название">
-          Голосование Олимпиады
+          {event.title}
         </p>
+        <p className="org-name">{event.organization}</p>
         <h1 className="headline">
           {phase === "done" ? "Голос принят" : "Выберите кандидата"}
         </h1>

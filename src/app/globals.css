@@ -85,13 +85,23 @@ a {
 }
 
 .brand {
-  margin: 0 0 0.85rem;
+  margin: 0 0 0.45rem;
   font-family: var(--font-display);
   font-weight: 700;
   font-size: clamp(1.85rem, 7vw, 2.35rem);
   line-height: 1.05;
   letter-spacing: -0.03em;
   color: var(--ink);
+  text-wrap: balance;
+}
+
+.org-name {
+  margin: 0 0 0.95rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.98rem;
+  line-height: 1.35;
+  color: var(--muted);
   text-wrap: balance;
 }
 
