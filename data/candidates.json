@@ -1,0 +1,23 @@
+[
+  {
+    "id": "maxim-frank",
+    "name": "Максим Франк",
+    "photo": "/candidates/maxim-frank.jpg",
+    "grade": "8 А класс",
+    "sport": "Вольная борьба"
+  },
+  {
+    "id": "slavik-nevolin",
+    "name": "Славик Неволин",
+    "photo": "/candidates/slavik-nevolin.jpg",
+    "grade": "",
+    "sport": ""
+  },
+  {
+    "id": "nikita-gusev",
+    "name": "Никита Гусев",
+    "photo": "/candidates/nikita-gusev.svg",
+    "grade": "",
+    "sport": ""
+  }
+]
