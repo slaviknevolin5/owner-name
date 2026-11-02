@@ -1,5 +1,17 @@
 [
-  { "id": "maxim-frank", "name": "Максим Франк" },
-  { "id": "slavik-nevolin", "name": "Славик Неволин" },
-  { "id": "nikita-gusev", "name": "Никита Гусев" }
+  {
+    "id": "maxim-frank",
+    "name": "Максим Франк",
+    "photo": "/candidates/maxim-frank.svg"
+  },
+  {
+    "id": "slavik-nevolin",
+    "name": "Славик Неволин",
+    "photo": "/candidates/slavik-nevolin.svg"
+  },
+  {
+    "id": "nikita-gusev",
+    "name": "Никита Гусев",
+    "photo": "/candidates/nikita-gusev.svg"
+  }
 ]

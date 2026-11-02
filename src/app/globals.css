@@ -132,7 +132,7 @@ a {
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 0.9rem;
-  padding: 1rem 1.05rem;
+  padding: 0.85rem 1.05rem 0.85rem 0.85rem;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: linear-gradient(180deg, rgba(20, 53, 42, 0.85), rgba(10, 30, 22, 0.9));
@@ -144,6 +144,63 @@ a {
     border-color 0.18s ease,
     background 0.18s ease,
     box-shadow 0.18s ease;
+}
+
+.candidate-photo {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 999px;
+  overflow: visible;
+}
+
+.candidate-photo--md {
+  width: 3.5rem;
+  height: 3.5rem;
+}
+
+.candidate-photo--sm {
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+.candidate-photo__img,
+.candidate-photo__fallback {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 2px solid rgba(232, 184, 74, 0.45);
+  background: var(--bg-lift);
+}
+
+.candidate-photo__fallback {
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.candidate-photo__badge {
+  position: absolute;
+  right: -0.2rem;
+  bottom: -0.15rem;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.25rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--bg-deep);
+  background: var(--accent);
+  border: 2px solid var(--bg-deep);
+  line-height: 1;
 }
 
 .candidate-btn:hover:not(:disabled) {
@@ -164,19 +221,6 @@ a {
 .candidate-btn.is-selected {
   border-color: var(--accent);
   background: linear-gradient(180deg, rgba(232, 184, 74, 0.22), rgba(10, 30, 22, 0.95));
-}
-
-.candidate-index {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  font-family: var(--font-display);
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--bg-deep);
-  background: var(--accent);
 }
 
 .candidate-name {
@@ -233,11 +277,21 @@ a {
 .voted-for {
   margin: 0;
   color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
 }
 
 .voted-for strong {
   color: var(--ink);
   font-weight: 700;
+}
+
+.result-identity {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
 }
 
 .results-title {

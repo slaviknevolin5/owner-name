@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { getOrCreateDeviceId } from "@/lib/device-id";
 import type { Candidate } from "@/lib/candidates";
+import { CandidatePhoto } from "@/components/CandidatePhoto";
 
 type StatusResponse = {
   hasVoted: boolean;
@@ -89,6 +90,7 @@ export function VoteApp({ candidates }: { candidates: Candidate[] }) {
 
   const total = Object.values(counts).reduce((a, b) => a + b, 0);
   const showResults = phase === "done";
+  const votedCandidate = candidates.find((c) => c.id === votedFor);
 
   return (
     <div className="vote-shell">
@@ -133,7 +135,7 @@ export function VoteApp({ candidates }: { candidates: Candidate[] }) {
                 disabled={phase === "voting"}
                 onClick={() => submitVote(c.id)}
               >
-                <span className="candidate-index">{index + 1}</span>
+                <CandidatePhoto candidate={c} index={index} size="md" />
                 <span className="candidate-name">{c.name}</span>
                 <span className="candidate-action">
                   {phase === "voting" && selectedId === c.id
@@ -149,12 +151,12 @@ export function VoteApp({ candidates }: { candidates: Candidate[] }) {
       {showResults && (
         <section className="results" aria-live="polite">
           {message && <p className="confirm-msg">{message}</p>}
-          {votedFor && (
+          {votedCandidate && (
             <p className="voted-for">
-              Ваш выбор:{" "}
-              <strong>
-                {candidates.find((c) => c.id === votedFor)?.name ?? votedFor}
-              </strong>
+              <CandidatePhoto candidate={votedCandidate} size="sm" />
+              <span>
+                Ваш выбор: <strong>{votedCandidate.name}</strong>
+              </span>
             </p>
           )}
           <h2 className="results-title">Текущие результаты</h2>
@@ -169,7 +171,10 @@ export function VoteApp({ candidates }: { candidates: Candidate[] }) {
                   className={`result-row${isMine ? " is-mine" : ""}`}
                 >
                   <div className="result-meta">
-                    <span className="result-name">{c.name}</span>
+                    <span className="result-identity">
+                      <CandidatePhoto candidate={c} size="sm" />
+                      <span className="result-name">{c.name}</span>
+                    </span>
                     <span className="result-count">
                       {votes} · {pct}%
                     </span>

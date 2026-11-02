@@ -3,6 +3,8 @@ import candidatesData from "../../data/candidates.json";
 export type Candidate = {
   id: string;
   name: string;
+  /** Path under /public or absolute URL */
+  photo?: string;
 };
 
 export function getCandidates(): Candidate[] {
