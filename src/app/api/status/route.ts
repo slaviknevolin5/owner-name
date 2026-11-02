@@ -10,12 +10,13 @@ export async function GET(request: NextRequest) {
   const deviceId = headerId || cookieId || null;
 
   const counts = await getResults();
+  const backend = await storageBackend();
 
   if (!deviceId) {
     return NextResponse.json({
       hasVoted: false,
       counts,
-      backend: storageBackend(),
+      backend,
     });
   }
 
@@ -25,6 +26,6 @@ export async function GET(request: NextRequest) {
     candidateId: vote?.candidateId ?? null,
     votedAt: vote?.votedAt ?? null,
     counts,
-    backend: storageBackend(),
+    backend,
   });
 }

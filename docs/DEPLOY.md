@@ -1,48 +1,52 @@
-# Постоянный деплой (Vercel + Upstash)
+# Постоянный деплой (Cloudflare Workers + KV)
 
-Временный Cloudflare Tunnel живёт только пока работает Cloud Agent.
-Для QR, который не «умирает», нужен Vercel + Redis.
+Сайт на Next.js деплоится через **OpenNext → Cloudflare Workers** (современный путь для Next на CF; у свечей `*.pages.dev` — обычно статичный Pages, а здесь нужны API + KV).
 
-## 1. Vercel
+## Уже сделано агентом (preview)
 
-1. Открой [vercel.com/new](https://vercel.com/new), войди через GitHub.
-2. Import `slaviknevolin5/owner-name`.
-3. Production Branch: `cursor/olympiad-voting-site-b180` (или `main` после merge [PR #1](https://github.com/slaviknevolin5/owner-name/pull/1)).
-4. Framework Preset: **Next.js**. Build: `next build`.
-5. После первого деплоя скопируй URL: `https://<имя>.vercel.app`.
+1. Worker: `olympiad-vote`
+2. KV binding: `OLYMPIAD_VOTES` (голоса + device id)
+3. Preview URL: `https://olympiad-vote.glaze-anatosaurus.workers.dev`
+4. **Claim (сделать за ~60 мин, иначе пропадёт):**  
+   https://dash.cloudflare.com/claim-preview?claimToken=L5IpMvpe5ya8pYLYSrPmVNxDT6W_KSFXDtv0SzhukKk
 
-## 2. Upstash Redis (обязательно для голосов)
+После claim сайт остаётся на твоём Cloudflare-аккаунте постоянно (как `minimavelas.pages.dev`, только домен будет `*.workers.dev` или свой).
 
-На serverless без Redis голоса **не** сохраняются стабильно.
+## Минимальные шаги для тебя
 
-1. [console.upstash.com](https://console.upstash.com) → Create Database → Redis → Free.
-2. Вкладка **REST API** → скопируй:
-   - `UPSTASH_REDIS_REST_URL`
-   - `UPSTASH_REDIS_REST_TOKEN`
+1. Открой **Claim URL** выше → войди в Cloudflare (тот же аккаунт, что для свечей).
+2. Подтверди claim preview account.
+3. Проверь сайт в браузере / телефоне.
+4. (Опционально) Workers & Pages → `olympiad-vote` → Settings → Domains → добавь свой домен / workers.dev.
+5. Пришли финальный URL — обновим `NEXT_PUBLIC_SITE_URL` и QR.
 
-## 3. Env на Vercel
+## Env / bindings
 
-Project → **Settings → Environment Variables** (Production + Preview):
+| Имя | Где | Назначение |
+|-----|-----|------------|
+| `OLYMPIAD_VOTES` | KV binding в `wrangler.jsonc` | голоса + один голос с устройства |
+| `NEXT_PUBLIC_SITE_URL` | build env / `.env` | канонический URL для `/qr` |
 
-| Name | Value |
-|------|--------|
-| `UPSTASH_REDIS_REST_URL` | из Upstash |
-| `UPSTASH_REDIS_REST_TOKEN` | из Upstash |
-| `NEXT_PUBLIC_SITE_URL` | `https://<имя>.vercel.app` |
+Upstash **не обязателен**, если есть KV.
 
-Затем **Redeploy**.
+## Повторный деплой (после claim + API token)
 
-## 4. QR
+```bash
+npx opennextjs-cloudflare build
+npx wrangler deploy
+```
 
-Открой `https://<имя>.vercel.app/qr` → «Скачать PNG»  
-или скажи URL агенту — обновим файл в `media/olympiad-vote-qr.png`.
-
-## Проверка
-
-- Главная открывается и листаются кандидаты.
-- Голос засчитывается; после обновления страницы — «уже проголосовали».
-- `GET /api/status` в ответе: `"backend":"redis"`.
+Нужен `CLOUDFLARE_API_TOKEN` (Edit Cloudflare Workers) или `wrangler login`.
 
 ## Локально
 
-Без Upstash голоса пишутся в `.data/votes.json` (только один Node-процесс).
+```bash
+npm install
+npm run dev   # file store .data/votes.json
+```
+
+## Проверка
+
+- Открывается главная, листаются кандидаты, голос пишется.
+- Повторный голос с того же устройства блокируется.
+- `GET /api/status` → `"backend":"kv"` на Cloudflare.

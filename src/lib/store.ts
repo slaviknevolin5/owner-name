@@ -13,8 +13,15 @@ export type VoteStoreData = {
   counts: Record<string, number>;
 };
 
+export type StorageBackend = "kv" | "redis" | "file";
+
 const DATA_DIR = path.join(process.cwd(), ".data");
 const DATA_FILE = path.join(DATA_DIR, "votes.json");
+
+const REDIS_DEVICES = "olympiad:devices";
+const REDIS_COUNTS = "olympiad:counts";
+const KV_DEVICE_PREFIX = "device:";
+const KV_COUNT_PREFIX = "count:";
 
 function emptyStore(): VoteStoreData {
   const counts: Record<string, number> = {};
@@ -32,6 +39,23 @@ function hasRedis(): boolean {
 
 function getRedis(): Redis {
   return Redis.fromEnv();
+}
+
+type KvNamespace = {
+  get(key: string, type?: "text"): Promise<string | null>;
+  put(key: string, value: string): Promise<void>;
+};
+
+async function getVotesKv(): Promise<KvNamespace | null> {
+  try {
+    const { getCloudflareContext } = await import("@opennextjs/cloudflare");
+    const ctx = await getCloudflareContext({ async: true });
+    const kv = (ctx.env as { OLYMPIAD_VOTES?: KvNamespace } | undefined)
+      ?.OLYMPIAD_VOTES;
+    return kv ?? null;
+  } catch {
+    return null;
+  }
 }
 
 async function readFileStore(): Promise<VoteStoreData> {
@@ -53,9 +77,6 @@ async function writeFileStore(data: VoteStoreData): Promise<void> {
   await fs.writeFile(DATA_FILE, JSON.stringify(data, null, 2), "utf8");
 }
 
-const REDIS_DEVICES = "olympiad:devices";
-const REDIS_COUNTS = "olympiad:counts";
-
 async function ensureRedisCounts(redis: Redis): Promise<void> {
   const existing = await redis.hgetall<Record<string, string>>(REDIS_COUNTS);
   if (existing && Object.keys(existing).length > 0) return;
@@ -68,19 +89,43 @@ async function ensureRedisCounts(redis: Redis): Promise<void> {
   }
 }
 
+async function getKvResults(kv: KvNamespace): Promise<Record<string, number>> {
+  const result: Record<string, number> = {};
+  for (const c of getCandidates()) {
+    const raw = await kv.get(`${KV_COUNT_PREFIX}${c.id}`);
+    result[c.id] = Number(raw ?? 0);
+  }
+  return result;
+}
+
 export async function getDeviceVote(
   deviceId: string,
 ): Promise<VoteRecord | null> {
+  const kv = await getVotesKv();
+  if (kv) {
+    const raw = await kv.get(`${KV_DEVICE_PREFIX}${deviceId}`);
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw) as VoteRecord;
+    } catch {
+      return null;
+    }
+  }
+
   if (hasRedis()) {
     const redis = getRedis();
     const record = await redis.hget<VoteRecord>(REDIS_DEVICES, deviceId);
     return record ?? null;
   }
+
   const store = await readFileStore();
   return store.devices[deviceId] ?? null;
 }
 
 export async function getResults(): Promise<Record<string, number>> {
+  const kv = await getVotesKv();
+  if (kv) return getKvResults(kv);
+
   if (hasRedis()) {
     const redis = getRedis();
     await ensureRedisCounts(redis);
@@ -91,6 +136,7 @@ export async function getResults(): Promise<Record<string, number>> {
     }
     return result;
   }
+
   const store = await readFileStore();
   return store.counts;
 }
@@ -117,6 +163,37 @@ export async function castVote(
     };
   }
 
+  const kv = await getVotesKv();
+  if (kv) {
+    const existingRaw = await kv.get(`${KV_DEVICE_PREFIX}${deviceId}`);
+    if (existingRaw) {
+      let existingId: string | undefined;
+      try {
+        existingId = (JSON.parse(existingRaw) as VoteRecord).candidateId;
+      } catch {
+        existingId = undefined;
+      }
+      return {
+        ok: false,
+        reason: "already_voted",
+        candidateId: existingId,
+        counts: await getKvResults(kv),
+      };
+    }
+
+    const record: VoteRecord = {
+      candidateId,
+      votedAt: new Date().toISOString(),
+    };
+    // Best-effort one-vote: check-then-set (KV has no native compare-and-swap).
+    await kv.put(`${KV_DEVICE_PREFIX}${deviceId}`, JSON.stringify(record));
+    const current = Number(
+      (await kv.get(`${KV_COUNT_PREFIX}${candidateId}`)) ?? 0,
+    );
+    await kv.put(`${KV_COUNT_PREFIX}${candidateId}`, String(current + 1));
+    return { ok: true, candidateId, counts: await getKvResults(kv) };
+  }
+
   if (hasRedis()) {
     const redis = getRedis();
     await ensureRedisCounts(redis);
@@ -136,7 +213,6 @@ export async function castVote(
       votedAt: new Date().toISOString(),
     };
 
-    // hsetnx returns 1 if field was set, 0 if it already existed
     const set = await redis.hsetnx(REDIS_DEVICES, deviceId, record);
     if (!set) {
       const again = await redis.hget<VoteRecord>(REDIS_DEVICES, deviceId);
@@ -152,7 +228,6 @@ export async function castVote(
     return { ok: true, candidateId, counts: await getResults() };
   }
 
-  // File store with simple lock via sequential read-modify-write
   const store = await readFileStore();
   if (store.devices[deviceId]) {
     return {
@@ -173,6 +248,8 @@ export async function castVote(
   return { ok: true, candidateId, counts: store.counts };
 }
 
-export function storageBackend(): "redis" | "file" {
-  return hasRedis() ? "redis" : "file";
+export async function storageBackend(): Promise<StorageBackend> {
+  if (await getVotesKv()) return "kv";
+  if (hasRedis()) return "redis";
+  return "file";
 }

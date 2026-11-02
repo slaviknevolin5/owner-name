@@ -15,6 +15,6 @@ export async function GET() {
   return NextResponse.json({
     candidates,
     total,
-    backend: storageBackend(),
+    backend: await storageBackend(),
   });
 }

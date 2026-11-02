@@ -1,0 +1,20 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "olympiad-vote",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2025-11-02",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "kv_namespaces": [
+    {
+      "binding": "OLYMPIAD_VOTES",
+      "id": "45e27631f0c64425bb286590aa36f63a"
+    }
+  ]
+}
